@@ -1,4 +1,4 @@
-:- dynamic([cell/2, path/2, seen/3]).
+:- dynamic([cell/2, path/2, seen/4]).
 :- consult([backtracking, breadth, rand]).
 
 human(X, Y):-     h(X, Y).
@@ -11,15 +11,15 @@ main:-
 
     print_map,
 
-    try_run('Breadth first', breadth),
+    try_run('Random',        rand),
     try_run('Backtracking',  backtracking),
-    try_run('Random',        rand).
+    try_run('Breadth first', breadth).
 
 
-try_run(N, P):- run(N, P); format('Map is not solvable with ~w\n', [N]).
+try_run(N, P):- run(N, P); format('Map is not solvable with ~w\n\n', [N]).
 run(Name, Pred):-
-    retractall(path(_,_)),
-    retractall(seen(_,_,_)),
+    retractall(path(_, _)),
+    retractall(seen(_, _, _, _)),
 
     statistics(walltime, [_|[_]]),
     Pred,
