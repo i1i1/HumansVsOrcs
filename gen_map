@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+import argparse
+import random
+
+
+def main(fp, n_orcs, n_humans, size):
+    cells = {(i, j) for i in range(size) for j in range(size)} - {(0, 0)}
+    humans = random.sample(cells, n_humans)
+    cells -= set(humans)
+
+    orcs = random.sample(cells, n_orcs)
+    cells -= set(orcs)
+
+    td, = random.sample(cells, 1)
+
+    fp.write(
+        '\n'.join(
+            ['o(%d, %d).' % o for o in orcs] +
+            ['h(%d, %d).' % h for h in humans] +
+            ['t(%d, %d).\n' % td]
+        )
+    )
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--file', type=argparse.FileType('w'),
+                        default=open('map/map.txt', 'w'),
+                        help='Map file to write')
+    parser.add_argument('-o', '--orc', type=int, default=random.randint(0, 50),
+                        help='Number of orcs on map')
+    parser.add_argument('--human', type=int, default=random.randint(0, 50),
+                        help='Number of humans on map')
+    parser.add_argument('-s', '--size', type=int, default=20,
+                        help='Size of map')
+
+    args = parser.parse_args()
+    main(args.file, args.orc, args.human, args.size)
+    args.file.close()
