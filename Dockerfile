@@ -6,13 +6,7 @@ RUN set -ex; \
         python3; \
     rm -rf /var/lib/apt/lists/*
 
-COPY . .
 VOLUME ["/map/"]
-CMD [ \
-    "/usr/bin/swipl", \
-    "-q", \
-    "-f", "/map/map.txt", \
-    "-l", "main.pl", \
-    "-g", "main", \
-    "-t", "halt" \
-]
+ENTRYPOINT ["swipl", "-q", "-t", "halt", "-l", "main.pl"]
+CMD ["-f", "/map/map.txt", "-g", "main"]
+COPY . .

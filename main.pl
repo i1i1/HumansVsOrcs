@@ -1,14 +1,12 @@
-:- dynamic([cell/2, path/2, seen/4]).
+:- dynamic([path/2, seen/4]).
 :- consult([backtracking, breadth, rand]).
 
 human(X, Y):-     h(X, Y).
 orc(X, Y):-       o(X, Y).
 touchdown(X, Y):- t(X, Y).
-
+cell(I, J):-      I >= 0, I < 20, J >= 0, J < 20.
 
 main:-
-    create_field(20, 20),
-
     print_map,
 
     try_run('Random',        rand),
@@ -32,16 +30,33 @@ run(Name, Pred):-
     print_moves(Moves),
     format("~w msec\n\n", [ExecutionTime]),!.
 
-%% Field creator
-create_field(X, Y):- create_field_iter(0, 0, X, Y).
-create_field_iter(X, Y, X, Y):- !.
-create_field_iter(X, J, X, Y):-
-    J1 is J + 1,
-    create_field_iter(0, J1, X, Y).
-create_field_iter(I, J, X, Y):-
-    asserta(cell(I, J)),
-    I1 is I + 1,
-    create_field_iter(I1, J, X, Y).
+
+%% Some helpers for algorithmes
+pass(Xp, Yp, X, Y):- direction(Dx, Dy), pass_to_direction(Xp, Yp, Dx, Dy, X, Y).
+
+direction( 0,  1).
+direction( 1,  1).
+direction( 1,  0).
+direction( 1, -1).
+direction( 0, -1).
+direction(-1, -1).
+direction(-1,  0).
+direction(-1,  1).
+
+%% Throw ball from position (X; Y) in direction (Xd; Yd)
+pass_to_direction(X, Y, Xd, Yd, Xr, Yr):-
+    Xnew is X + Xd, Ynew is Y + Yd,
+    cell(Xnew, Ynew), not(orc(Xnew, Ynew)), (
+        (human(Xnew, Ynew), Xr is Xnew, Yr is Ynew),!;
+        pass_to_direction(Xnew, Ynew, Xd, Yd, Xr, Yr)
+    ).
+
+step(Xp, Yp, X, Y):- neighbourhood(Xp, Yp, X, Y), cell(X, Y).
+
+neighbourhood(Xp, Yp, X, Y):- X is Xp,     Y is Yp + 1.
+neighbourhood(Xp, Yp, X, Y):- X is Xp,     Y is Yp - 1.
+neighbourhood(Xp, Yp, X, Y):- X is Xp + 1, Y is Yp.
+neighbourhood(Xp, Yp, X, Y):- X is Xp - 1, Y is Yp.
 
 
 %% Some dirty prints which produce nice output
@@ -87,29 +102,3 @@ print_row_items(I, J):-
     I1 is I+1,
     print_row_items(I1, J).
 
-
-pass(Xp, Yp, X, Y):- direction(Dx, Dy), pass_to_direction(Xp, Yp, Dx, Dy, X, Y).
-
-direction( 0,  1).
-direction( 1,  1).
-direction( 1,  0).
-direction( 1, -1).
-direction( 0, -1).
-direction(-1, -1).
-direction(-1,  0).
-direction(-1,  1).
-
-%% Throw ball from position (X; Y) in direction (Xd; Yd)
-pass_to_direction(X, Y, Xd, Yd, Xr, Yr):-
-    Xnew is X + Xd, Ynew is Y + Yd,
-    cell(Xnew, Ynew), not(orc(Xnew, Ynew)), (
-        (human(Xnew, Ynew), Xr is Xnew, Yr is Ynew),!;
-        pass_to_direction(Xnew, Ynew, Xd, Yd, Xr, Yr)
-    ).
-
-step(Xp, Yp, X, Y):- neighbourhood(Xp, Yp, X, Y), cell(X, Y).
-
-neighbourhood(Xp, Yp, X, Y):- X is Xp,     Y is Yp + 1.
-neighbourhood(Xp, Yp, X, Y):- X is Xp,     Y is Yp - 1.
-neighbourhood(Xp, Yp, X, Y):- X is Xp + 1, Y is Yp.
-neighbourhood(Xp, Yp, X, Y):- X is Xp - 1, Y is Yp.
