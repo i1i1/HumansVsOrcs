@@ -27,9 +27,10 @@ breadth_stack_pop(X, Y, N, Moves, Pass):-
 
 
 %% Win condition
-breadth_step(Xp, Yp, N, Moves, _):-
-    touchdown(Xp, Yp),
+breadth_step(Xp, Yp, Np, PMoves, PPass):-
+    touchdown_nearby(Xp, Yp, Np, PMoves, PPass, N, Moves),
     assertz(path(N, Moves)), !.
+
 %% Death condition
 breadth_step(Xp, Yp, _, _, _):- orc(Xp, Yp), !.
 

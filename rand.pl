@@ -19,8 +19,8 @@ rand_try_iter(I, E):-
 
 
 %% Win condition
-rand_turn(Xp, Yp, N, Moves, _):-
-    touchdown(Xp, Yp),
+rand_turn(Xp, Yp, Np, PMoves, PPass):-
+    touchdown_nearby(Xp, Yp, Np, PMoves, PPass, N, Moves),
     assertz(path(N, Moves)), !.
 
 %% Death condition

@@ -1,9 +1,10 @@
 backtracking:- backtracking_step(0, 0, 0, [], 0).
 
 %% Win condition
-backtracking_step(Xp, Yp, N, Moves, _):-
-    touchdown(Xp, Yp),
+backtracking_step(Xp, Yp, Np, PMoves, PPass):-
+    touchdown_nearby(Xp, Yp, Np, PMoves, PPass, N, Moves),
     assertz(path(N, Moves)), !.
+
 %% Death condition
 backtracking_step(Xp, Yp, _, _, _):- orc(Xp, Yp), !.
 

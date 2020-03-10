@@ -5,6 +5,7 @@ human(X, Y):-     h(X, Y).
 orc(X, Y):-       o(X, Y).
 touchdown(X, Y):- t(X, Y).
 cell(I, J):-      I >= 0, I < 20, J >= 0, J < 20.
+not(X):- \+X.
 
 main:-
     print_map,
@@ -32,7 +33,10 @@ run(Name, Pred):-
 
 
 %% Some helpers for algorithmes
-pass(Xp, Yp, X, Y):- direction(Dx, Dy), pass_to_direction(Xp, Yp, Dx, Dy, X, Y).
+pass(Xp, Yp, X, Y):-
+	direction(Dx, Dy),
+	pass_to_direction(Xp, Yp, Dx, Dy, X, Y),
+	not(step(Xp, Yp, X, Y)).
 
 direction( 0,  1).
 direction( 1,  1).
@@ -57,6 +61,24 @@ neighbourhood(Xp, Yp, X, Y):- X is Xp,     Y is Yp + 1.
 neighbourhood(Xp, Yp, X, Y):- X is Xp,     Y is Yp - 1.
 neighbourhood(Xp, Yp, X, Y):- X is Xp + 1, Y is Yp.
 neighbourhood(Xp, Yp, X, Y):- X is Xp - 1, Y is Yp.
+
+%% Returns path to touchdown (N, Moves) if there is
+touchdown_nearby(Xp, Yp, Np, PMoves, PPass, N, Moves):-
+    touchdown_nearby_r1(Xp, Yp, Np, PMoves, PPass, N, Moves).
+
+touchdown_nearby_r1(Xp, Yp, Np, PMoves, _, N, Moves):-
+    step(Xp, Yp, X, Y), touchdown(X, Y),
+
+    append(PMoves, [[X, Y, 0]], Moves),
+    (human(X, Y), N is Np; N is Np + 1).
+
+touchdown_nearby_r2(Xp, Yp, Np, PMoves, _, N, Moves):-
+    step(Xp, Yp, X1, Y1), not(orc(X1, Y1)),
+    step(X1, Y1, X2, Y2), touchdown(X2, Y2),
+
+    append(PMoves, [[X1, Y1, 0], [X2, Y2, 0]], Moves),
+    (human(X1, Y1), N1 is Np; N1 is Np + 1),
+    (human(X2, Y2), N  is N1; N  is N1 + 1).
 
 
 %% Some dirty prints which produce nice output
@@ -101,4 +123,3 @@ print_row_items(I, J):-
     ),
     I1 is I+1,
     print_row_items(I1, J).
-
